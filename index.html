@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>簿記１級 学習進捗</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1C2B40">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="簿記１級">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root{
+  --paper:#F2F6FA;
+  --paper-line:#C7D4E2;
+  --card:#FFFFFF;
+  --ink:#1C2B40;
+  --ink-soft:#5B6B85;
+  --margin-red:#B5474D;
+  --hanko:#C0392B;
+  --hanko-soft:#E8D3D0;
+  --gold:#B8944A;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background:
+    repeating-linear-gradient(var(--paper) 0px, var(--paper) 27px, var(--paper-line) 28px),
+    var(--paper);
+  color:var(--ink);
+  font-family:'Noto Sans JP', sans-serif;
+  padding-bottom:60px;
+  min-height:100vh;
+}
+
+header{
+  position:relative;
+  padding:32px 20px 20px 44px;
+  border-left:2px solid var(--margin-red);
+  margin-left:16px;
+}
+header h1{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:28px;
+  margin:0 0 4px;
+  letter-spacing:0.05em;
+}
+header p{
+  margin:0;
+  color:var(--ink-soft);
+  font-size:13px;
+  letter-spacing:0.05em;
+}
+
+.overall{
+  margin:20px 16px 24px 44px;
+  padding-left:14px;
+  border-left:2px solid var(--margin-red);
+}
+.overall-row{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;}
+.overall-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:32px;color:var(--ink);}
+.overall-label{font-size:12px;color:var(--ink-soft);letter-spacing:0.05em;}
+.bar-track{height:8px;background:var(--paper-line);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg, var(--gold), var(--hanko));transition:width .4s ease;}
+
+.subject{
+  margin:0 16px 20px 44px;
+  background:var(--card);
+  border-left:2px solid var(--margin-red);
+  border-radius:2px;
+  box-shadow:0 1px 3px rgba(28,43,64,0.08);
+  overflow:hidden;
+}
+.subject-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 16px;
+  cursor:pointer;
+  user-select:none;
+}
+.subject-title{
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  font-size:17px;
+}
+.subject-meta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+.subject-body{
+  border-top:1px dashed var(--paper-line);
+  display:none;
+}
+.subject.open .subject-body{display:block;}
+.subject.open .chevron{transform:rotate(90deg);}
+.chevron{transition:transform .2s ease;color:var(--ink-soft);font-size:14px;}
+
+.item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:11px 16px;
+  border-bottom:1px solid var(--paper);
+}
+.item:last-child{border-bottom:none;}
+.stamp{
+  flex:none;
+  width:30px;height:30px;
+  border-radius:50%;
+  border:2px solid var(--margin-red);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  background:transparent;
+  transition:transform .15s ease;
+}
+.stamp.done{
+  background:var(--hanko-soft);
+  border-color:var(--hanko);
+  transform:scale(1.05) rotate(-6deg);
+}
+.stamp.done::after{
+  content:'済';
+  font-family:'Shippori Mincho', serif;
+  font-weight:700;
+  color:var(--hanko);
+  font-size:13px;
+}
+.item-name{
+  flex:1;
+  font-size:14px;
+  line-height:1.4;
+}
+.item.done .item-name{color:var(--ink-soft);text-decoration:line-through;text-decoration-color:var(--paper-line);}
+.item-del{
+  flex:none;
+  border:none;background:none;color:var(--ink-soft);
+  font-size:16px;cursor:pointer;padding:4px 6px;opacity:0.5;
+}
+.item-del:hover{opacity:1;color:var(--hanko);}
+
+.add-row{
+  display:flex;gap:8px;
+  padding:12px 16px;
+  border-top:1px dashed var(--paper-line);
+}
+.add-row input{
+  flex:1;
+  border:1px solid var(--paper-line);
+  border-radius:4px;
+  padding:8px 10px;
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:14px;
+  background:var(--paper);
+}
+.add-row button{
+  border:1px solid var(--ink);
+  background:var(--ink);
+  color:var(--paper);
+  border-radius:4px;
+  padding:0 14px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.add-subject{
+  margin:0 16px 32px 44px;
+  display:flex;gap:8px;
+}
+.add-subject input{
+  flex:1;
+  border:1px solid var(--paper-line);
+  border-radius:4px;
+  padding:10px 12px;
+  font-family:'Shippori Mincho',serif;
+  font-size:14px;
+  background:var(--card);
+}
+.add-subject button{
+  border:1px solid var(--margin-red);
+  background:var(--card);
+  color:var(--margin-red);
+  border-radius:4px;
+  padding:0 16px;
+  font-size:14px;
+  cursor:pointer;
+  font-family:'Shippori Mincho',serif;
+}
+
+footer{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:11px;
+  padding:10px;
+  letter-spacing:0.05em;
+}
+
+.toast{
+  position:fixed;
+  bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--ink);
+  color:var(--paper);
+  padding:8px 16px;
+  border-radius:20px;
+  font-size:12px;
+  opacity:0;
+  transition:all .25s ease;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>簿記１級 学習進捗</h1>
+  <p>ITEM CHECKED &amp; STAMPED PROGRESS TRACKER</p>
+</header>
+
+<div class="overall">
+  <div class="overall-row">
+    <span class="overall-num" id="overallPct">0%</span>
+    <span class="overall-label" id="overallCount">0 / 0 完了</span>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="overallBar" style="width:0%"></div></div>
+</div>
+
+<div id="subjects"></div>
+
+<div class="add-subject">
+  <input id="newSubjectInput" type="text" placeholder="新しい科目を追加（例：会計学）">
+  <button onclick="addSubject()">追加</button>
+</div>
+
+<footer>OFFLINE READY — データはこの端末のブラウザに保存されます</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'boki1_tracker_data_v1';
+
+const DEFAULT_DATA = [
+  { name: '商業簿記', open: true, items: [
+    '本支店会計・在外支店',
+    '連結会計（資本連結・成果連結）',
+    '企業結合・合併会計',
+    '外貨建取引・為替予約',
+    '社債（発行・買入償還）',
+    'リース会計（ファイナンス・オペレーティング）',
+    '減損会計',
+    '税効果会計',
+    '純資産の変動（自己株式・新株予約権）',
+  ].map(mk) },
+  { name: '会計学（理論）', open: false, items: [
+    '概念フレームワーク',
+    '収益認識基準',
+    '金融商品会計基準',
+    '資産除去債務',
+    '包括利益・その他の包括利益',
+    '会計方針の変更・過去の誤謬',
+    'キャッシュ・フロー計算書',
+  ].map(mk) },
+  { name: '工業簿記', open: false, items: [
+    '個別原価計算',
+    '総合原価計算（単純・組別・等級別）',
+    '標準原価計算・差異分析',
+    '直接原価計算・CVP分析',
+    '本社工場会計',
+  ].map(mk) },
+  { name: '原価計算', open: false, items: [
+    '費目別計算（材料費・労務費・経費）',
+    '部門別計算（配賦基準の選択）',
+    '意思決定会計（差額原価収益分析）',
+    '設備投資の経済性計算',
+    '予算実績差異分析',
+  ].map(mk) },
+];
+
+function mk(name){ return { id: crypto.randomUUID(), name, done:false }; }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = load();
+
+function render(){
+  const container = document.getElementById('subjects');
+  container.innerHTML = '';
+  let totalDone = 0, totalItems = 0;
+
+  state.forEach((subject, sIdx) => {
+    const done = subject.items.filter(i=>i.done).length;
+    const total = subject.items.length;
+    totalDone += done; totalItems += total;
+
+    const el = document.createElement('div');
+    el.className = 'subject' + (subject.open ? ' open' : '');
+
+    const head = document.createElement('div');
+    head.className = 'subject-head';
+    head.innerHTML = `
+      <span class="subject-title">${escapeHtml(subject.name)}</span>
+      <span style="display:flex;align-items:center;gap:10px;">
+        <span class="subject-meta">${done}/${total}</span>
+        <span class="chevron">▶</span>
+      </span>`;
+    head.onclick = () => { subject.open = !subject.open; save(); render(); };
+    el.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'subject-body';
+
+    subject.items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'item' + (item.done ? ' done' : '');
+      row.innerHTML = `
+        <span class="stamp ${item.done?'done':''}"></span>
+        <span class="item-name">${escapeHtml(item.name)}</span>
+        <button class="item-del">✕</button>`;
+      row.querySelector('.stamp').onclick = () => {
+        item.done = !item.done; save(); render();
+        if(item.done) toast('スタンプ押印 済');
+      };
+      row.querySelector('.item-del').onclick = () => {
+        subject.items = subject.items.filter(i => i.id !== item.id);
+        save(); render();
+      };
+      body.appendChild(row);
+    });
+
+    const addRow = document.createElement('div');
+    addRow.className = 'add-row';
+    addRow.innerHTML = `<input type="text" placeholder="項目を追加"><button>追加</button>`;
+    const input = addRow.querySelector('input');
+    const addFn = () => {
+      const v = input.value.trim();
+      if(!v) return;
+      subject.items.push(mk(v));
+      input.value = '';
+      save(); render();
+    };
+    addRow.querySelector('button').onclick = addFn;
+    input.onkeydown = (e) => { if(e.key === 'Enter') addFn(); };
+    body.appendChild(addRow);
+
+    el.appendChild(body);
+    container.appendChild(el);
+  });
+
+  const pct = totalItems ? Math.round(totalDone/totalItems*100) : 0;
+  document.getElementById('overallPct').textContent = pct + '%';
+  document.getElementById('overallCount').textContent = `${totalDone} / ${totalItems} 完了`;
+  document.getElementById('overallBar').style.width = pct + '%';
+}
+
+function addSubject(){
+  const input = document.getElementById('newSubjectInput');
+  const v = input.value.trim();
+  if(!v) return;
+  state.push({ name: v, open: true, items: [] });
+  input.value = '';
+  save(); render();
+}
+document.getElementById('newSubjectInput').onkeydown = (e) => { if(e.key==='Enter') addSubject(); };
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1400);
+}
+
+render();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
